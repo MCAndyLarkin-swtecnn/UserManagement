@@ -9,6 +9,7 @@ class SingleHealthCheck : HealthCheck() {
             .withMessage("message")
             .healthy()
             .build()
+        TODO("Decide if Real HealthCheck implementation is necessary")
     }
 
 }

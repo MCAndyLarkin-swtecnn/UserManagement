@@ -6,4 +6,5 @@ data class ListingParams(
     val offset: Int? = null,
     val sortBy: String? = null,
     val sortOrder: Boolean = true,
-    val showActive: Boolean = false)
+    val showActive: Boolean = false
+)
