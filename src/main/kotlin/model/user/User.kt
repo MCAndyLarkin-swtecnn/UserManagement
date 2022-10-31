@@ -21,9 +21,4 @@ object UserContract {
     const val SECOND_NAME = "secondName"
     const val EMAIL = "email"
     const val BIRTH_DATE = "birthDate"
-
-//    fun validateProperty(property: String?): String? = when (property) {
-//        ID, FIRST_NAME, SECOND_NAME, EMAIL, BIRTH_DATE -> property
-//        else -> null
-//    }
 }
