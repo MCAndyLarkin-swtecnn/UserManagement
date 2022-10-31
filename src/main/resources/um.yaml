@@ -1,0 +1,17 @@
+server:
+  type: default
+  rootPath: '/appName/*'
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+#  database:
+#    driverClass:
+#logging:
+#  level: INFO
+#  appenders:
+#    - type: file
+#      currentLogFilename: /umapp.log
+#      archive: false
