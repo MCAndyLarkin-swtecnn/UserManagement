@@ -9,4 +9,10 @@ object ResponseUtils {
         Response.status(Response.Status.INTERNAL_SERVER_ERROR.statusCode,
             result.exceptionOrNull()?.message).build()
     }
+
+    fun responseFromTryCatch(tryAction: () -> Response): Response = try {
+        tryAction()
+    } catch (ex: Exception) {
+        Response.status(Response.Status.INTERNAL_SERVER_ERROR.statusCode, ex.message).build()
+    }
 }
