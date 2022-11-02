@@ -8,7 +8,6 @@ import controller.UsersResourceController
 
 object KodeinModules {
     val usersManagementModule = Kodein.Module("users management") {
-        bind<SingleHealthCheck>() with singleton { SingleHealthCheck() }
         bind<UsersResourceController>() with singleton { UsersResourceController(instance()) }
     }
 }
