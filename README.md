@@ -1,9 +1,9 @@
 # UserManagement
 UserManagement
 
-User management service based on dropwizard tools.
+User CRUD management service based on dropwizard tools.
 With database h2 in memory.
-Koin is used as DI tool.
+Kodein is used as DI tool.
 Swagger client [in progress].
 Controller, Dao and model serialization are tested [in progress].
 
