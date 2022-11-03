@@ -22,15 +22,16 @@ class UsersResourceController(private val service: IStubService) {
     @GET
     @Timed
     fun getAllUsers(@QueryParam(ListingParams.filterBy) filterBy: Optional<String>,
-                    @QueryParam(ListingParams.limit) @Min(1) @Max(100) @DefaultValue("25") limit : Int,
-                    @QueryParam(ListingParams.offset) @Min(0) @DefaultValue("0") offset : Int,
-                    @QueryParam(ListingParams.sortBy) @DefaultValue(UserContract.ID) sortBy : String,
-                    @QueryParam(ListingParams.sortOrder) @DefaultValue("UNSORTED") sortOrder : SortOrder,
-                    @QueryParam(ListingParams.showActive) @DefaultValue("false") showActive : Boolean): Response = ResponseUtils.responseFromTryCatch {
+                    @QueryParam(ListingParams.limit) @Min(1) @Max(100) @DefaultValue("25") limit : OptionalInt,
+                    @QueryParam(ListingParams.offset) @Min(0) @DefaultValue("0") offset : OptionalInt,
+                    @QueryParam(ListingParams.sortBy) @DefaultValue(UserContract.ID) sortBy : Optional<String>,
+                    @QueryParam(ListingParams.sortOrder) @DefaultValue("UNSORTED") sortOrder : Optional<SortOrder>,
+                    @QueryParam(ListingParams.showActive) @DefaultValue("false") showActive : Optional<Boolean>): Response = ResponseUtils.responseFromTryCatch {
         ListingParams(
             filterBy = OptionalUtils.getOrNull(filterBy)?.let(RequestProcessingUtil::parseFilterPair),
-            limit = limit, offset = offset, sortBy = sortBy,
-            sortOrder = sortOrder, showActive = showActive
+            limit = OptionalUtils.getOrNull(limit), offset = OptionalUtils.getOrNull(offset),
+            sortBy = OptionalUtils.getOrNull(sortBy), sortOrder = OptionalUtils.getOrNull(sortOrder),
+            showActive = OptionalUtils.getOrNull(showActive) ?: false
         ).let(service::getAllUsers)
             .let(ResponseUtils::mapResult)
     }
