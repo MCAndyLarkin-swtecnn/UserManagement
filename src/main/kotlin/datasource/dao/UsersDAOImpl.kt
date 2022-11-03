@@ -11,31 +11,35 @@ class UsersDAOImpl(private val jdbi: Jdbi,
                    private val validator: DaoValidator) : UsersDao {
 
     override fun getAllUsers(params: ListingParams): List<User> =
-        //TODO: Add ListingParams validation if params aren't provided to local dao
+        //TODO: Add ListingParams validation
         jdbi.onDemand(UsersMappedDao::class.java).getAllUsers(params);
 
-    override fun getUserById(id: Int): User =
+    override fun getUserById(id: Int): User? =
         jdbi.onDemand(UsersMappedDao::class.java).getUserById(id)
 
-    override fun deleteUserById(id: Int): User =
+
+    override fun getUserByEmail(email: String): User? =
+        jdbi.onDemand(UsersMappedDao::class.java).getUserByEmail(email)
+
+    override fun deleteUserById(id: Int): User? =
         jdbi.onDemand(UsersMappedDao::class.java).let { dao ->
-            dao.getUserById(id).also {
+            dao.getUserById(id)?.also {
                 dao.deleteUserById(id)
             }
         }
 
-    override fun addUser(user: User): User = validator.checkUserValidity(user).run {
+    override fun addUser(user: User): User? = validator.checkUserValidity(user).run {
         jdbi.onDemand(UsersMappedDao::class.java).let { dao ->
             dao.insertUser(user)
-                .let(dao::getUserById)
+                ?.let(dao::getUserById)
         }
     }
 
-    override fun updateUser(user: User): User = validator.checkUserValidity(user).run {
+    override fun updateUser(user: User): User? = validator.checkUserValidity(user).run {
         jdbi.onDemand(UsersMappedDao::class.java).let { dao ->
             dao.updateUser(user)
                 //Why it is not actual ???
-                .let(dao::getUserById)
+                ?.let(dao::getUserById)
         }
     }
 }

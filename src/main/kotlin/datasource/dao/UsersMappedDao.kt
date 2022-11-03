@@ -30,7 +30,7 @@ interface UsersMappedDao {
             "$USER_BIRTHDAY_DATE_COLUMN, $USER_CREATION_DATE_COLUMN, $USER_DELETION_DATE_COLUMN) " +
             "VALUES (:user.firstName, :user.secondName, :user.email, :user.birthdayDate, :user.creationDate, :user.deletionDate)")
     @GetGeneratedKeys(USER_ID_COLUMN)
-    fun insertUser(@BindBean("user") user: User): Int
+    fun insertUser(@BindBean("user") user: User): Int?
 
     @SqlUpdate("UPDATE $USERS_TABLE_NAME " +
             "SET $USER_FIRST_NAME_COLUMN = :user.firstName, " +
@@ -41,16 +41,20 @@ interface UsersMappedDao {
             "$USER_DELETION_DATE_COLUMN = :user.deletionDate " +
             "WHERE $USER_ID_COLUMN = :user.id")
     @GetGeneratedKeys(USER_ID_COLUMN)
-    fun updateUser(@BindBean("user") user: User): Int
+    fun updateUser(@BindBean("user") user: User): Int?
 
     @SqlQuery("SELECT * from $USERS_TABLE_NAME LIMIT :params.limit OFFSET :params.offset")
     fun getAllUsers(@BindBean("params") params: ListingParams): List<User>
 
     @SqlQuery("SELECT * from $USERS_TABLE_NAME where $USER_ID_COLUMN = ?")
-    fun getUserById(id: Int): User
+    fun getUserById(id: Int): User?
+
+    @SqlQuery("SELECT * from $USERS_TABLE_NAME where $USER_EMAIL_COLUMN = ?")
+    @GetGeneratedKeys(USER_ID_COLUMN)
+    fun getUserByEmail(email: String): User?
 
     @SqlQuery("DELETE from $USERS_TABLE_NAME where $USER_ID_COLUMN = ?")
-    fun deleteUserById(id: Int): Number
+    fun deleteUserById(id: Int): Int?
 
 
     class UserMapper : RowMapper<User> {
