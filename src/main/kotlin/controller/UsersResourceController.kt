@@ -2,7 +2,7 @@ package controller
 
 import com.codahale.metrics.annotation.Timed
 import entities.ListingParams
-import service.IStubService
+import service.UserManagementService
 import model.user.*
 import utils.*
 import java.util.*
@@ -15,8 +15,7 @@ import javax.ws.rs.core.Response
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//TODO: Demo IStubService. Should be deleted! UserManagementService should be implemented and used instead.
-class UsersResourceController(private val service: IStubService) {
+class UsersResourceController(private val service: UserManagementService) {
 
     //valid: http://localhost:8080/appName/users?filterBy=id-3&limit=10&offset=3&sortBy=email&sortOrder=ASCENDING&showActive=true
     @GET
