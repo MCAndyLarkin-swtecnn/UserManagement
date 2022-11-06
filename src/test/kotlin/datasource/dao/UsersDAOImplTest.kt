@@ -1,12 +1,12 @@
 package datasource.dao
 
+import datasource.dao.dbmanager.DatabaseManager
+import datasource.dao.model.user.UserDBModel
 import datasource.dao.validation.DaoValidator
 import entities.ListingParams
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import model.user.User
-import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -15,69 +15,73 @@ import kotlin.test.assertEquals
 internal class UsersDAOImplTest {
     private lateinit var dao: UsersDao
     private lateinit var validator: DaoValidator
-    private lateinit var jdbi: Jdbi
-    private lateinit var mappedDao: UsersMappedDao
+    private lateinit var dbManager: DatabaseManager
 
     @BeforeEach
     fun setUp() {
-        jdbi = mockk()
-        mappedDao = mockk()
-        every { jdbi.onDemand<UsersMappedDao>(any()) } returns mappedDao
         validator = mockk()
-        dao = UsersDAOImpl(jdbi, validator)
+        dbManager = mockk()
+        dao = UsersDAOImpl(dbManager, validator)
     }
 
     @Test
     fun getAllUsers() {
         val expectedParam = mockk<ListingParams>()
-        val expectedResult = mockk<List<User>>()
-        every { mappedDao.getAllUsers(any()) } returns expectedResult
+        val expectedResult = mockk<List<UserDBModel>>()
+        every { dbManager.getAllUsers(any()) } returns expectedResult
 
         val actualResult = dao.getAllUsers(expectedParam)
 
-        verify { mappedDao.getAllUsers(expectedParam) }
+        verify { dbManager.getAllUsers(expectedParam) }
         assertEquals(expectedResult, actualResult)
     }
 
     @Test
     fun getUserById() {
         val expectedParam = 5
-        val expectedResult = mockk<User>()
-        every { mappedDao.getUserById(any()) } returns expectedResult
+        val expectedResult = mockk<UserDBModel>()
+        every { dbManager.getUserById(any()) } returns expectedResult
 
         val actualResult = dao.getUserById(expectedParam)
 
-        verify { mappedDao.getUserById(expectedParam) }
+        verify { dbManager.getUserById(expectedParam) }
+        assertEquals(expectedResult, actualResult)
+    }
+
+    @Test
+    fun getUserByEmail() {
+        val expectedParam = "expected email"
+        val expectedResult = mockk<UserDBModel>()
+        every { dbManager.getUserByEmail(any()) } returns expectedResult
+
+        val actualResult = dao.getUserByEmail(expectedParam)
+
+        verify { dbManager.getUserByEmail(expectedParam) }
         assertEquals(expectedResult, actualResult)
     }
 
     @Test
     fun deleteUserById() {
         val expectedParam = 5
-        val expectedResult = mockk<User>()
-        every { mappedDao.getUserById(any()) } returns expectedResult
-        every { mappedDao.deleteUserById(any()) } returns mockk()
+        val expectedResult = mockk<UserDBModel>()
+        every { dbManager.deleteUserById(any()) } returns expectedResult
 
         val actualResult = dao.deleteUserById(expectedParam)
 
-        verify { mappedDao.deleteUserById(expectedParam) }
-        verify { mappedDao.getUserById(expectedParam) }
+        verify { dbManager.deleteUserById(expectedParam) }
         assertEquals(expectedResult, actualResult)
     }
 
     @Test
     fun addUser_userValid() {
-        val expectedUserParam = mockk<User>()
-        val expectedIdParam = 0
+        val expectedUserParam = mockk<UserDBModel>()
         every { validator.checkUserValidity(any()) } returns Unit
-        every { mappedDao.insertUser(any()) } returns expectedIdParam
-        every { mappedDao.getUserById(any()) } returns expectedUserParam
+        every { dbManager.addUser(any()) } returns expectedUserParam
 
         val actualResult = dao.addUser(expectedUserParam)
 
         verify { validator.checkUserValidity(expectedUserParam) }
-        verify { mappedDao.insertUser(expectedUserParam) }
-        verify { mappedDao.getUserById(expectedIdParam) }
+        verify { dbManager.addUser(expectedUserParam) }
         assertEquals(expectedUserParam, actualResult)
     }
 
@@ -85,32 +89,27 @@ internal class UsersDAOImplTest {
     fun addUser_userInvalid() {
         val expectedExceptionMessage = "expectedExceptionMessage"
         val expectedException = Exception(expectedExceptionMessage)
-        val expectedUserParam = mockk<User>()
+        val expectedUserParam = mockk<UserDBModel>()
         every { validator.checkUserValidity(any()) } throws expectedException
-        every { mappedDao.insertUser(any()) } returns mockk()
-        every { mappedDao.getUserById(any()) } returns mockk()
+        every { dbManager.addUser(any()) } returns mockk()
 
         assertThrows<Exception> (expectedExceptionMessage) {
             dao.addUser(expectedUserParam)
         }
         verify { validator.checkUserValidity(expectedUserParam) }
-        verify(inverse = true) { mappedDao.insertUser(any()) }
-        verify(inverse = true) { mappedDao.getUserById(any()) }
+        verify(inverse = true) { dbManager.addUser(any()) }
     }
 
     @Test
     fun updateUser_userValid() {
-        val expectedUserParam = mockk<User>()
-        val expectedIdParam = 0
+        val expectedUserParam = mockk<UserDBModel>()
         every { validator.checkUserValidity(any()) } returns Unit
-        every { mappedDao.updateUser(any()) } returns expectedIdParam
-        every { mappedDao.getUserById(any()) } returns expectedUserParam
+        every { dbManager.updateUser(any()) } returns expectedUserParam
 
         val actualResult = dao.updateUser(expectedUserParam)
 
         verify { validator.checkUserValidity(expectedUserParam) }
-        verify { mappedDao.updateUser(expectedUserParam) }
-        verify { mappedDao.getUserById(expectedIdParam) }
+        verify { dbManager.updateUser(expectedUserParam) }
         assertEquals(expectedUserParam, actualResult)
     }
 
@@ -118,16 +117,14 @@ internal class UsersDAOImplTest {
     fun updateUser_userInvalid() {
         val expectedExceptionMessage = "expectedExceptionMessage"
         val expectedException = Exception(expectedExceptionMessage)
-        val expectedUserParam = mockk<User>()
+        val expectedUserParam = mockk<UserDBModel>()
         every { validator.checkUserValidity(any()) } throws expectedException
-        every { mappedDao.updateUser(any()) } returns mockk()
-        every { mappedDao.getUserById(any()) } returns mockk()
+        every { dbManager.updateUser(any()) } returns mockk()
 
         assertThrows<Exception> (expectedExceptionMessage) {
             dao.updateUser(expectedUserParam)
         }
         verify { validator.checkUserValidity(expectedUserParam) }
-        verify(inverse = true) { mappedDao.updateUser(any()) }
-        verify(inverse = true) { mappedDao.getUserById(any()) }
+        verify(inverse = true) { dbManager.updateUser(any()) }
     }
 }
