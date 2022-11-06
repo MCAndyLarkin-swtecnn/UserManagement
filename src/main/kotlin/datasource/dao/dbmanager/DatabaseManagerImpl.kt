@@ -14,10 +14,8 @@ class DatabaseManagerImpl(private val jdbi: Jdbi) : DatabaseManager {
         jdbi.onDemand(UsersMappedDao::class.java).getUserById(id)
 
     override fun deleteUserById(id: Int): UserDBModel? =
-        jdbi.onDemand(UsersMappedDao::class.java).also { print("1 deleteUserById $id") }.let { dao ->
-            print("2deleteUserById $id")
+        jdbi.onDemand(UsersMappedDao::class.java).let { dao ->
             dao.getUserById(id)?.also {
-                print("3deleteUserById $id")
                 dao.deleteUserById(id)
             }
         }
