@@ -1,8 +1,8 @@
 package service
 
 import entities.ListingParams
-import model.user.NewUser
-import model.user.UpdateUser
+import gateway.model.user.NewUser
+import gateway.model.user.UpdateUser
 
 //TODO: Demo service. Should be deleted! UserManagementService should be implemented and used instead.
 class StubService : IStubService {

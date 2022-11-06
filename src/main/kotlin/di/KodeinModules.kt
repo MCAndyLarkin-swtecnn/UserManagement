@@ -4,7 +4,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
-import controller.UsersResourceController
+import gateway.controller.UsersResourceController
 import service.IStubService
 import service.StubService
 
