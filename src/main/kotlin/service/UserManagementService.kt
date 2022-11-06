@@ -1,7 +1,9 @@
 package service
 
 import entities.ListingParams
-import model.user.*
+import gateway.model.user.NewUser
+import gateway.model.user.UpdateUser
+import gateway.model.user.User
 
 interface UserManagementService {
     fun getAllUsers(params: ListingParams): Result<List<User>>

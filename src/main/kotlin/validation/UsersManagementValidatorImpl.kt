@@ -1,11 +1,10 @@
 package validation
 
 import entities.ListingParams
-import model.user.NewUser
-import model.user.UpdateUser
-import model.user.UserContract
+import gateway.model.user.NewUser
+import gateway.model.user.UpdateUser
+import gateway.model.user.UserContract
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator
-import java.util.*
 
 class UsersManagementValidatorImpl : UsersManagementValidator {
     override fun checkListingParamsValidity(params: ListingParams) {

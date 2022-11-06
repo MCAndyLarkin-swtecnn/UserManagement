@@ -1,9 +1,9 @@
-package controller
+package gateway.controller
 
 import com.codahale.metrics.annotation.Timed
 import entities.ListingParams
+import gateway.model.user.*
 import service.UserManagementService
-import model.user.*
 import utils.*
 import java.util.*
 import javax.swing.SortOrder
