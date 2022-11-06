@@ -5,7 +5,7 @@ import io.dropwizard.setup.Bootstrap
 import io.dropwizard.setup.Environment
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
-import controller.UsersResourceController
+import gateway.controller.UsersResourceController
 
 class UsersManagementApp : Application<UserManagementConfiguration>() {
     private val kodein = Kodein {
