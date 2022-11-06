@@ -1,4 +1,4 @@
-package model.user
+package gateway.model.user
 
 object UserContract {
     const val ID = "id"

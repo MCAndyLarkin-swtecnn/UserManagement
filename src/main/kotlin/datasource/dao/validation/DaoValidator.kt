@@ -1,8 +1,8 @@
 package datasource.dao.validation
 
-import model.user.User
+import datasource.dao.model.user.UserDBModel
 
 
 interface DaoValidator {
-    fun checkUserValidity(user: User)
+    fun checkUserValidity(user: UserDBModel)
 }

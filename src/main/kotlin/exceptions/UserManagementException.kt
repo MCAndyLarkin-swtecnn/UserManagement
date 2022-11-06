@@ -1,8 +1,8 @@
 package exceptions
 
 import entities.ListingParams
-import model.user.NewUser
-import model.user.UpdateUser
+import gateway.model.user.NewUser
+import gateway.model.user.UpdateUser
 import utils.RequestProcessingUtil
 
 open class UserManagementException(message: String) : Exception(message)
@@ -16,7 +16,7 @@ class RequestFilterInvalidException(invalidParam: String, processingException: E
         "\n${processingException.message}")
 
 class EmailAlreadyUsedException(email: String)
-    : UserManagementException("The user fwith same email '$email' is already exists!")
+    : UserManagementException("The user with same email '$email' is already exists!")
 
 class UserWithIdNotFoundException(id: Int)
     : UserManagementException("The user with id: $id doesn't exists!")

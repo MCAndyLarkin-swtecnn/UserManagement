@@ -2,11 +2,11 @@ package datasource.dao.validation
 
 import com.github.rkpunjal.sqlsafe.SqlSafeUtil
 import datasource.dao.UnexpectedSQLInjectionException
-import model.user.User
+import datasource.dao.model.user.UserDBModel
 
 
 class DaoValidatorImpl : DaoValidator{
-    override fun checkUserValidity(user: User) {
+    override fun checkUserValidity(user: UserDBModel) {
         if (user.firstName.isSqlInjection()) {
             throw UnexpectedSQLInjectionException("${buildUserInvalidWarningMessage(user)} : " +
                     buildSqlInjectionWarningMessage("User::firstName -- ${user.firstName}")
@@ -32,6 +32,6 @@ class DaoValidatorImpl : DaoValidator{
 
         private fun buildSqlInjectionWarningMessage(wrongField: String) = SQL_INJECTION_WARNING_PATTERN.format(wrongField)
 
-        private fun buildUserInvalidWarningMessage(user: User) = INVALID_USER_WARNING_PATTERN.format(user)
+        private fun buildUserInvalidWarningMessage(user: UserDBModel) = INVALID_USER_WARNING_PATTERN.format(user)
     }
 }
