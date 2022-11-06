@@ -1,4 +1,4 @@
-package controller
+package gateway.controller
 
 import com.codahale.metrics.annotation.Timed
 import entities.ListingParams
