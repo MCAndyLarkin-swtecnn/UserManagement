@@ -30,6 +30,18 @@ dependencies {
     // https://mvnrepository.com/artifact/org.kodein.di/kodein-di-generic-jvm
     implementation("org.kodein.di:kodein-di-generic-jvm:6.4.0")
 
+    //Database
+    // https://mvnrepository.com/artifact/org.jdbi/jdbi3-core
+    implementation("org.jdbi:jdbi3-core:3.34.0")
+    // https://mvnrepository.com/artifact/org.jdbi/jdbi3-sqlobject
+    implementation("org.jdbi:jdbi3-sqlobject:3.34.0")
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    implementation("com.h2database:h2:2.1.214")
+
+    //Utils
+    // https://mvnrepository.com/artifact/com.github.rkpunjal.sqlsafe/sql-injection-safe
+    implementation("com.github.rkpunjal.sqlsafe:sql-injection-safe:1.0.2")
+
 
     //Tests
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
