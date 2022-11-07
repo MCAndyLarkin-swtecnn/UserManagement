@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: Users Management App 1.0
+  description: |-
+    Reserch [Source code](https://github.com/MCAndyLarkin-swtecnn/UserManagement). `GitHub`
+  contact:
+    email: maxim.sokolov@swtecnn.com
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+tags:
+  - name: users
+    description: Users Management Service
+    externalDocs:
+      description: Controller
+      url: https://github.com/MCAndyLarkin-swtecnn/UserManagement/tree/main/kotlin/controller/UsersResourceController.kt
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: Gets all the users
+      description: Gets all the users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: All the users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Something was not found
+        '500':
+          description: Something went wrong
+
+    post:
+      tags:
+        - users
+      summary: Add a new user
+      description: Add a new user
+      operationId: addNewUser
+      requestBody:
+        description: Add a new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+        required: true
+      responses:
+        '200':
+          description: Added user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Something was not found
+        '500':
+          description: Something went wrong
+
+    patch:
+      tags:
+        - users
+      summary: Update an existing User
+      description: Update an existing User
+      operationId: updateUser
+      requestBody:
+        description: Update an existent User
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+        required: true
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Something was not found
+        '500':
+          description: Something went wrong
+
+  /users/{userId}:
+    get:
+      tags:
+        - users
+      summary: Find user by Id
+      description: Returns a single user with specified Id
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: User's id to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Found user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Something was not found
+        '500':
+          description: Something went wrong
+
+    delete:
+      tags:
+        - users
+      summary: Deletes an user by Id
+      description: Delete an user by Id
+      operationId: deleteUserById
+      parameters:
+        - name: userId
+          in: path
+          description: User's id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Deleted user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Something was not found
+        '500':
+          description: Something went wrong
+
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        firstName:
+          type: string
+          example: Max
+        secondName:
+          type: string
+          example: Surname
+        email:
+          type: string
+          format: username@server.domain
+          example: max@mail.ru
+        birthdayDate:
+          type: integer
+          format: int64
+          description: Unix time in milliseconds
+          example: 1667420306000
+        creationDate:
+          type: integer
+          format: int64
+          description: Unix time in milliseconds
+          example: 1667420306001
+        deletionDate:
+          type: integer
+          format: int64
+          description: Unix time in milliseconds
+          example: 1667420306002
+    NewUser:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Max
+        secondName:
+          type: string
+          example: Surname
+        email:
+          type: string
+          format: username@server.domain
+          example: max@mail.ru
+        birthdayDate:
+          type: integer
+          format: int64
+          description: Unix time in milliseconds
+          example: 1667420306000
+    UpdateUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        firstName:
+          type: string
+          example: Max
+        secondName:
+          type: string
+          example: Surname
+        email:
+          type: string
+          format: username@server.domain
+          example: max@mail.ru
+        birthdayDate:
+          type: integer
+          format: int64
+          description: Unix time in milliseconds
+          example: 1667420306000

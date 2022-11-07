@@ -13,7 +13,7 @@ class UsersManagementApp : Application<UserManagementConfiguration>() {
     }
 
     override fun initialize(bootstrap: Bootstrap<UserManagementConfiguration>?) {
-        bootstrap?.addBundle(AssetsBundle("/assets/", "/", "index.html"))
+        bootstrap?.addBundle(AssetsBundle("/dist/", "/", "index.html"))
     }
 
     override fun run(configuration: UserManagementConfiguration, environment: Environment?) {
