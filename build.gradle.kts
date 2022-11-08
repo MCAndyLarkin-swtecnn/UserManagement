@@ -42,6 +42,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.github.rkpunjal.sqlsafe/sql-injection-safe
     implementation("com.github.rkpunjal.sqlsafe:sql-injection-safe:1.0.2")
 
+    //Swagger
+    implementation("com.smoketurner:dropwizard-swagger:2.0.0-1")
 
     //Tests
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
