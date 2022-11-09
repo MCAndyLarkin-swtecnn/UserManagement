@@ -8,8 +8,6 @@ import gateway.controller.UsersResourceController
 import datasource.JdbiProvider
 import datasource.dao.UsersDAOImpl
 import datasource.dao.UsersDao
-import datasource.dao.dbmanager.DatabaseManager
-import datasource.dao.dbmanager.DatabaseManagerImpl
 import datasource.dao.validation.DaoValidator
 import datasource.dao.validation.DaoValidatorImpl
 import mapper.GatewayDbUserMapper
@@ -24,7 +22,6 @@ object KodeinModules {
     val usersManagementModule = Kodein.Module("users management") {
         bind<Jdbi>() with singleton { JdbiProvider.jdbi }
         bind<DaoValidator>() with singleton { DaoValidatorImpl() }
-        bind<DatabaseManager>() with singleton { DatabaseManagerImpl(instance()) }
         bind<UsersDao>() with singleton { UsersDAOImpl(instance(), instance()) }
         bind<UsersManagementValidator>() with singleton { UsersManagementValidatorImpl() }
         bind<GatewayDbUserMapper>() with singleton { GatewayDbUserMapperImpl() }

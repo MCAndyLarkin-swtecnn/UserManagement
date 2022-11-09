@@ -8,9 +8,6 @@ import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator
 
 class UsersManagementValidatorImpl : UsersManagementValidator {
     override fun checkListingParamsValidity(params: ListingParams) {
-        params.filterBy?.first?.let { value ->
-            checkFieldInUserContract(value, "ListingParams.filterBy.first in $params")
-        }
         params.sortBy?.let { value ->
             checkFieldInUserContract(value, "ListingParams.sortBy in $params")
         }

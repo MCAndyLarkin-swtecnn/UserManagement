@@ -1,6 +1,5 @@
 package datasource
 
-import datasource.dao.UsersMappedDao
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.SqlObjectPlugin
 import java.sql.DriverManager
@@ -15,10 +14,6 @@ object JdbiProvider {
             DbProperties.DB_PASSWORD.value()
         ).let(Jdbi::create).also { jdbi ->
             jdbi.installPlugin(SqlObjectPlugin())
-        }.also {jdbi ->
-            jdbi.withExtension<Unit, UsersMappedDao, Exception>(UsersMappedDao::class.java) { dao ->
-                dao.initTable()
-            }
         }
     }
 }

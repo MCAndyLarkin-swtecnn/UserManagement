@@ -1,130 +1,220 @@
 package datasource.dao
 
-import datasource.dao.dbmanager.DatabaseManager
 import datasource.dao.model.user.UserDBModel
 import datasource.dao.validation.DaoValidator
 import entities.ListingParams
+import gateway.model.user.UserContract
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.sqlobject.SqlObjectPlugin
+import org.junit.jupiter.api.*
+import java.sql.DriverManager
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 
 internal class UsersDAOImplTest {
     private lateinit var dao: UsersDao
     private lateinit var validator: DaoValidator
-    private lateinit var dbManager: DatabaseManager
+    private lateinit var jdbi: Jdbi
+
+    class ExpectedDaoException : Exception()
 
     @BeforeEach
     fun setUp() {
+        jdbi = createTestJdbi()
         validator = mockk()
-        dbManager = mockk()
-        dao = UsersDAOImpl(dbManager, validator)
+        dao = UsersDAOImpl(jdbi, validator)
     }
 
-    @Test
-    fun getAllUsers() {
-        val expectedParam = mockk<ListingParams>()
-        val expectedResult = mockk<List<UserDBModel>>()
-        every { dbManager.getAllUsers(any()) } returns expectedResult
-
-        val actualResult = dao.getAllUsers(expectedParam)
-
-        verify { dbManager.getAllUsers(expectedParam) }
-        assertEquals(expectedResult, actualResult)
-    }
-
-    @Test
-    fun getUserById() {
-        val expectedParam = 5
-        val expectedResult = mockk<UserDBModel>()
-        every { dbManager.getUserById(any()) } returns expectedResult
-
-        val actualResult = dao.getUserById(expectedParam)
-
-        verify { dbManager.getUserById(expectedParam) }
-        assertEquals(expectedResult, actualResult)
-    }
-
-    @Test
-    fun getUserByEmail() {
-        val expectedParam = "expected email"
-        val expectedResult = mockk<UserDBModel>()
-        every { dbManager.getUserByEmail(any()) } returns expectedResult
-
-        val actualResult = dao.getUserByEmail(expectedParam)
-
-        verify { dbManager.getUserByEmail(expectedParam) }
-        assertEquals(expectedResult, actualResult)
-    }
-
-    @Test
-    fun deleteUserById() {
-        val expectedParam = 5
-        val expectedResult = mockk<UserDBModel>()
-        every { dbManager.deleteUserById(any()) } returns expectedResult
-
-        val actualResult = dao.deleteUserById(expectedParam)
-
-        verify { dbManager.deleteUserById(expectedParam) }
-        assertEquals(expectedResult, actualResult)
-    }
-
-    @Test
-    fun addUser_userValid() {
-        val expectedUserParam = mockk<UserDBModel>()
-        every { validator.checkUserValidity(any()) } returns Unit
-        every { dbManager.addUser(any()) } returns expectedUserParam
-
-        val actualResult = dao.addUser(expectedUserParam)
-
-        verify { validator.checkUserValidity(expectedUserParam) }
-        verify { dbManager.addUser(expectedUserParam) }
-        assertEquals(expectedUserParam, actualResult)
-    }
-
-    @Test
-    fun addUser_userInvalid() {
-        val expectedExceptionMessage = "expectedExceptionMessage"
-        val expectedException = Exception(expectedExceptionMessage)
-        val expectedUserParam = mockk<UserDBModel>()
-        every { validator.checkUserValidity(any()) } throws expectedException
-        every { dbManager.addUser(any()) } returns mockk()
-
-        assertThrows<Exception> (expectedExceptionMessage) {
-            dao.addUser(expectedUserParam)
+    @AfterEach
+    fun tearDrop() {
+        jdbi.withHandle<Any, Exception> { handle ->
+            handle.execute("DROP TABLE ${UsersMappedDao.USERS_TABLE_NAME};")
         }
-        verify { validator.checkUserValidity(expectedUserParam) }
-        verify(inverse = true) { dbManager.addUser(any()) }
     }
 
     @Test
-    fun updateUser_userValid() {
-        val expectedUserParam = mockk<UserDBModel>()
+    fun getAllUsers_emptyOnStart() {
+        assertEquals(dao.getAllUsers(null), listOf())
+    }
+
+    @Test
+    fun getAllUsers_onFilled() {
+        val expectedUser = addRandomUserToTable(1)
+
+        val actualResult = dao.getAllUsers(null)
+
+        assert(actualResult.size == 1)
+        assertEquals(expectedUser, actualResult.first())
+    }
+
+    @Test
+    fun getAllUsers_onFilled_withParams() {
+        val offset = 1
+        val limit = 2
+        val expectedUsers = (1..4)
+            .map { i -> addRandomUserToTable(i) }
+            .subList(offset, offset + limit)
+            .sortedBy { user -> user.id }
+
+        val actualResult = dao.getAllUsers(
+            ListingParams(
+                limit = limit,
+                offset = offset,
+                sortBy = UserContract.ID,
+                sortOrder = null,
+                showActive = false
+            )
+        )
+
+        assertEquals(expectedUsers.size, actualResult.size)
+        assertEquals(expectedUsers, actualResult)
+    }
+
+    @Test
+    fun getUserById_onAbsent() {
+        val expectedUserId = 1
+        addRandomUserToTable(expectedUserId)
+
+        val actualResult = dao.getUserById(2)
+
+        assertNull(actualResult)
+    }
+
+    @Test
+    fun getUserById_onExistent() {
+        val expectedUserId = 1
+        val expectedUser = addRandomUserToTable(expectedUserId)
+
+        val actualResult = dao.getUserById(expectedUserId)
+
+        assertEquals(expectedUser, actualResult)
+    }
+
+    @Test
+    fun getUserByEmail_onAbsent() {
+        val actualResult = dao.getUserById(1)
+
+        assertNull(actualResult)
+    }
+
+    @Test
+    fun getUserByEmail_onExistent() {
+        val expectedUserId = 1
+        val expectedUser = addRandomUserToTable(expectedUserId)
+
+        val actualResult = dao.getUserById(expectedUserId)
+
+        assertEquals(actualResult?.email, expectedUser.email)
+    }
+
+    @Test
+    fun addUser_onValidUser() {
+        assert(getAllUsers().isEmpty())
+        val expectedUser = getRandomUser(1)
         every { validator.checkUserValidity(any()) } returns Unit
-        every { dbManager.updateUser(any()) } returns expectedUserParam
 
-        val actualResult = dao.updateUser(expectedUserParam)
+        dao.addUser(expectedUser)
 
-        verify { validator.checkUserValidity(expectedUserParam) }
-        verify { dbManager.updateUser(expectedUserParam) }
-        assertEquals(expectedUserParam, actualResult)
+        verify { validator.checkUserValidity(expectedUser)  }
+        val result = getAllUsers()
+        assert(result.size == 1) {"Result user's list size is more than 1 (${result.size})!"}
+        assertEquals(expectedUser, result.first())
     }
 
     @Test
-    fun updateUser_userInvalid() {
-        val expectedExceptionMessage = "expectedExceptionMessage"
-        val expectedException = Exception(expectedExceptionMessage)
-        val expectedUserParam = mockk<UserDBModel>()
-        every { validator.checkUserValidity(any()) } throws expectedException
-        every { dbManager.updateUser(any()) } returns mockk()
+    fun addUser_onInvalidUser() {
+        assert(getAllUsers().isEmpty())
+        val expectedUser = getRandomUser(1)
+        every { validator.checkUserValidity(any()) } throws ExpectedDaoException()
 
-        assertThrows<Exception> (expectedExceptionMessage) {
-            dao.updateUser(expectedUserParam)
+        assertThrows<ExpectedDaoException> {
+            dao.addUser(expectedUser)
         }
-        verify { validator.checkUserValidity(expectedUserParam) }
-        verify(inverse = true) { dbManager.updateUser(any()) }
+
+        verify { validator.checkUserValidity(expectedUser) }
+        assert(getAllUsers().isEmpty())
+    }
+
+    @Test
+    fun updateUser_onValidUser() {
+        val expectedUserId = 1
+        val sourcedUser = addRandomUserToTable(expectedUserId)
+        assert(getAllUsers().size == 1)
+
+        every { validator.checkUserValidity(any()) } returns Unit
+        val expectedUser = getRandomUser(expectedUserId)
+        assertNotEquals(expectedUser, sourcedUser)
+
+        dao.updateUser(expectedUser)
+
+        verify { validator.checkUserValidity(expectedUser)  }
+        val result = getAllUsers()
+        assert(result.size == 1) {"Result user's list size is more than 1 (${result.size})!"}
+        assertEquals(expectedUser, result.first())
+    }
+
+    @Test
+    fun updateUser_onInvalidUser() {
+        assert(getAllUsers().isEmpty())
+        val expectedUser = getRandomUser(1)
+        every { validator.checkUserValidity(any()) } throws ExpectedDaoException()
+
+        assertThrows<ExpectedDaoException> {
+            dao.updateUser(expectedUser)
+        }
+
+        verify { validator.checkUserValidity(expectedUser) }
+        assert(getAllUsers().isEmpty())
+    }
+
+    private fun addRandomUserToTable(id: Int? = null): UserDBModel = getRandomUser(id).also { user ->
+        jdbi.withHandle<Any, Exception> { handle ->
+            handle.execute(
+                "INSERT INTO ${UsersMappedDao.USERS_TABLE_NAME} (${UsersMappedDao.USER_FIRST_NAME_COLUMN}, " +
+                        "${UsersMappedDao.USER_SECOND_NAME_COLUMN}, ${UsersMappedDao.USER_EMAIL_COLUMN}, " +
+                        "${UsersMappedDao.USER_BIRTHDAY_DATE_COLUMN}, ${UsersMappedDao.USER_CREATION_DATE_COLUMN}) " +
+                        "VALUES ('${user.firstName}', '${user.secondName}', '${user.email}', " +
+                        "'${h2DefaultDateFormat.format(user.birthdayDate)}', '${h2DefaultDateFormat.format(user.creationDate)}')"
+            )
+        }
+    }
+
+    private fun getAllUsers() = jdbi.withHandle<List<UserDBModel>, Exception> { handle ->
+        handle.createQuery("SELECT * FROM ${UsersMappedDao.USERS_TABLE_NAME};")
+            .map(UsersMappedDao.UserMapper())
+            .list()
+    }
+
+    companion object {
+        val h2DefaultDateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        private fun getRandomUser(id: Int? = null): UserDBModel {
+            val randomDay = Random.nextInt(0, 28)
+            val randomYear = Random.nextInt(1900, 2100)
+            val randomMonth = Random.nextInt(0, 12)
+            val randomAge = Random.nextInt(0, 50)
+            return UserDBModel(
+                id, "FirstName$randomDay", "SecondName$randomYear", "email$randomMonth",
+                Date(randomYear, randomMonth, randomDay), Date(randomYear+randomAge, randomMonth, randomDay), null
+            )
+        }
+
+        private fun createTestJdbi(): Jdbi {
+            Class.forName("org.h2.Driver")
+            return DriverManager.getConnection(
+                "jdbc:h2:mem:test",
+                "test_username",
+                "test_password"
+            ).let(Jdbi::create).also { jdbi ->
+                jdbi.installPlugin(SqlObjectPlugin())
+            }
+        }
     }
 }

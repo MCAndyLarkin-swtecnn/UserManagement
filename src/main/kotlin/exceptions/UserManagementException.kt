@@ -1,19 +1,12 @@
 package exceptions
 
-import entities.ListingParams
 import gateway.model.user.NewUser
 import gateway.model.user.UpdateUser
-import utils.RequestProcessingUtil
 
 open class UserManagementException(message: String) : Exception(message)
 
 class RequiredBodyMissedException(bodyDescription: String)
     : UserManagementException("The required '$bodyDescription' entity in body wasn't provided!")
-
-class RequestFilterInvalidException(invalidParam: String, processingException: Exception)
-    : UserManagementException("The passed filter params '$invalidParam' are invalid. " +
-        "\nExample: '${ListingParams.filterBy}=<user_property>${RequestProcessingUtil.FILTER_DELIMITER}<your_value>'!" +
-        "\n${processingException.message}")
 
 class EmailAlreadyUsedException(email: String)
     : UserManagementException("The user with same email '$email' is already exists!")

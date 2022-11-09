@@ -1,33 +1,44 @@
 package datasource.dao
 
-import datasource.dao.dbmanager.DatabaseManager
 import datasource.dao.model.user.UserDBModel
 import datasource.dao.validation.DaoValidator
 import entities.ListingParams
+import org.jdbi.v3.core.Jdbi
 
 
 //TODO: Catch SQL EXCEPTIONS
-class UsersDAOImpl(private val dbManager: DatabaseManager,
+class UsersDAOImpl(jdbi: Jdbi,
                    private val validator: DaoValidator) : UsersDao {
+    private val mappedDao: UsersMappedDao by UsersMappedDao.Delegate(jdbi)
 
-    override fun getAllUsers(params: ListingParams): List<UserDBModel> =
+    init {
+        mappedDao.initTable()
+    }
+
+    override fun getAllUsers(params: ListingParams?): List<UserDBModel> =
         //TODO: Add ListingParams validation
-        dbManager.getAllUsers(params);
+        mappedDao.let { dao ->
+            params?.let(dao::getAllUsers) ?: dao.getAllUsers()
+        }
 
     override fun getUserById(id: Int): UserDBModel? =
-        dbManager.getUserById(id)
+        mappedDao.getUserById(id)
 
     override fun getUserByEmail(email: String): UserDBModel? =
-        dbManager.getUserByEmail(email)
-
-    override fun deleteUserById(id: Int): UserDBModel? =
-        dbManager.deleteUserById(id)
+        mappedDao.getUserByEmail(email)
 
     override fun addUser(user: UserDBModel): UserDBModel? = validator.checkUserValidity(user).run {
-        dbManager.addUser(user)
+        mappedDao.let { dao ->
+            dao.insertUser(user)
+                ?.let(dao::getUserById)
+        }
     }
 
     override fun updateUser(user: UserDBModel): UserDBModel? = validator.checkUserValidity(user).run {
-        dbManager.updateUser(user)
+        mappedDao.let { dao ->
+            dao.updateUser(user)
+                //Why it is not actual ???
+                ?.let(dao::getUserById)
+        }
     }
 }

@@ -2,6 +2,7 @@ package datasource.dao
 
 import datasource.dao.model.user.UserDBModel
 import entities.ListingParams
+import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper
@@ -21,13 +22,13 @@ interface UsersMappedDao {
             "$USER_EMAIL_COLUMN VARCHAR, " +
             "$USER_BIRTHDAY_DATE_COLUMN DATE, " +
             "$USER_CREATION_DATE_COLUMN DATE, " +
-            "$USER_DELETION_DATE_COLUMN DATE)")
+            "$USER_DELETION_DATE_COLUMN DATE DEFAULT(NULL))")
     fun initTable()
 
     @SqlUpdate("INSERT INTO $USERS_TABLE_NAME " +
             "($USER_FIRST_NAME_COLUMN, $USER_SECOND_NAME_COLUMN, $USER_EMAIL_COLUMN, " +
-            "$USER_BIRTHDAY_DATE_COLUMN, $USER_CREATION_DATE_COLUMN, $USER_DELETION_DATE_COLUMN) " +
-            "VALUES (:user.firstName, :user.secondName, :user.email, :user.birthdayDate, :user.creationDate, :user.deletionDate)")
+            "$USER_BIRTHDAY_DATE_COLUMN, $USER_CREATION_DATE_COLUMN) " +
+            "VALUES (:user.firstName, :user.secondName, :user.email, :user.birthdayDate, :user.creationDate)")
     @GetGeneratedKeys(USER_ID_COLUMN)
     fun insertUser(@BindBean("user") user: UserDBModel): Int?
 
@@ -42,8 +43,11 @@ interface UsersMappedDao {
     @GetGeneratedKeys(USER_ID_COLUMN)
     fun updateUser(@BindBean("user") user: UserDBModel): Int?
 
-    @SqlQuery("SELECT * from $USERS_TABLE_NAME LIMIT :params.limit OFFSET :params.offset")
+    @SqlQuery("SELECT * from $USERS_TABLE_NAME ORDER BY 'params:sortBy' LIMIT :params.limit OFFSET :params.offset")
     fun getAllUsers(@BindBean("params") params: ListingParams): List<UserDBModel>
+
+    @SqlQuery("SELECT * from $USERS_TABLE_NAME")
+    fun getAllUsers(): List<UserDBModel>
 
     @SqlQuery("SELECT * from $USERS_TABLE_NAME where $USER_ID_COLUMN = ?")
     fun getUserById(id: Int): UserDBModel?
@@ -51,9 +55,6 @@ interface UsersMappedDao {
     @SqlQuery("SELECT * from $USERS_TABLE_NAME where $USER_EMAIL_COLUMN = ?")
     @GetGeneratedKeys(USER_ID_COLUMN)
     fun getUserByEmail(email: String): UserDBModel?
-
-    @SqlQuery("DELETE from $USERS_TABLE_NAME where $USER_ID_COLUMN = ?")
-    fun deleteUserById(id: Int): Int?
 
 
     class UserMapper : RowMapper<UserDBModel> {
@@ -66,6 +67,11 @@ interface UsersMappedDao {
                 row.getDate(USER_CREATION_DATE_COLUMN),
                 row.getDate(USER_DELETION_DATE_COLUMN)
             )
+    }
+
+    class Delegate(private val jdbi: Jdbi) {
+        operator fun getValue(thisRef: Any?, property: Any?): UsersMappedDao =
+            jdbi.onDemand(UsersMappedDao::class.java)
     }
 
     companion object {
