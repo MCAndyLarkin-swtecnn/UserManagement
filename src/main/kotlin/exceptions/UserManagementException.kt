@@ -15,10 +15,10 @@ class RequestFilterInvalidException(invalidParam: String, processingException: E
         "\nExample: '${ListingParams.filterBy}=<user_property>${RequestProcessingUtil.FILTER_DELIMITER}<your_value>'!" +
         "\n${processingException.message}")
 
-class EmailAlreadyUsedException(email: String)
+class EmailAlreadyUsedException(email: String)//409
     : UserManagementException("The user with same email '$email' is already exists!")
 
-class UserWithIdNotFoundException(id: Int)
+class UserWithIdNotFoundException(id: Int)//404
     : UserManagementException("The user with id: $id doesn't exists!")
 
 class UserAdditionInterruptedException(user: NewUser)

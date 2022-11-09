@@ -3,7 +3,6 @@ package entities
 import javax.swing.SortOrder
 
 data class ListingParams(
-    val filterBy: Pair<String, String>?,
     val limit: Int?,
     val offset: Int?,
     val sortBy: String?,

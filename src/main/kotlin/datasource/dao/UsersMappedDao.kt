@@ -18,7 +18,7 @@ interface UsersMappedDao {
             "($USER_ID_COLUMN INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT, " +
             "$USER_FIRST_NAME_COLUMN VARCHAR, " +
             "$USER_SECOND_NAME_COLUMN VARCHAR, " +
-            "$USER_EMAIL_COLUMN VARCHAR, " +
+            "$USER_EMAIL_COLUMN VARCHAR, " +//unique h2
             "$USER_BIRTHDAY_DATE_COLUMN DATE, " +
             "$USER_CREATION_DATE_COLUMN DATE, " +
             "$USER_DELETION_DATE_COLUMN DATE)")
@@ -29,7 +29,7 @@ interface UsersMappedDao {
             "$USER_BIRTHDAY_DATE_COLUMN, $USER_CREATION_DATE_COLUMN, $USER_DELETION_DATE_COLUMN) " +
             "VALUES (:user.firstName, :user.secondName, :user.email, :user.birthdayDate, :user.creationDate, :user.deletionDate)")
     @GetGeneratedKeys(USER_ID_COLUMN)
-    fun insertUser(@BindBean("user") user: UserDBModel): Int?
+    fun insertUser(@BindBean("user") user: UserDBModel): Int
 
     @SqlUpdate("UPDATE $USERS_TABLE_NAME " +
             "SET $USER_FIRST_NAME_COLUMN = :user.firstName, " +

@@ -4,6 +4,10 @@ import com.codahale.metrics.annotation.Timed
 import entities.ListingParams
 import service.UserManagementService
 import gateway.model.user.*
+import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
+import org.eclipse.jetty.http.HttpStatus
 import utils.*
 import java.util.*
 import javax.swing.SortOrder
@@ -14,57 +18,113 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("/users")
-@Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+@Produces(MediaType.APPLICATION_JSON)
+@Api(
+    value = "/users",
+    tags = ["Users"]
+)
 class UsersResourceController(private val service: UserManagementService) {
 
     //valid: http://localhost:8080/appName/users?filterBy=id-3&limit=10&offset=3&sortBy=email&sortOrder=ASCENDING&showActive=true
     @GET
+    @ApiOperation(
+        value = "Returns all the users",
+        response = List::class,
+        code = HttpStatus.OK_200,
+        notes = "Returns list of existent users"
+    )
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Timed
-    fun getAllUsers(@QueryParam(ListingParams.filterBy) filterBy: Optional<String>,
-                    @QueryParam(ListingParams.limit) @Min(1) @Max(100) @DefaultValue("25") limit : OptionalInt,
-                    @QueryParam(ListingParams.offset) @Min(0) @DefaultValue("0") offset : OptionalInt,
-                    @QueryParam(ListingParams.sortBy) @DefaultValue(UserContract.ID) sortBy : Optional<String>,
-                    @QueryParam(ListingParams.sortOrder) @DefaultValue("UNSORTED") sortOrder : Optional<SortOrder>,
-                    @QueryParam(ListingParams.showActive) @DefaultValue("false") showActive : Optional<Boolean>): Response = ResponseUtils.responseFromTryCatch {
+    fun getAllUsers(
+        @ApiParam(hidden = true)
+        @QueryParam(ListingParams.limit)
+        @Min(1)
+        @Max(100)
+        @DefaultValue("25") limit : Int,
+
+        @ApiParam(hidden = true)
+        @QueryParam(ListingParams.offset)
+        @Min(0)
+        @DefaultValue("0") offset : Int,
+
+        @ApiParam(hidden = true)
+        @QueryParam(ListingParams.sortBy)
+        @DefaultValue(UserContract.ID) sortBy : String,
+
+        @ApiParam(hidden = true)
+        @QueryParam(ListingParams.sortOrder)
+        @DefaultValue("UNSORTED") sortOrder : SortOrder,
+
+        @ApiParam(hidden = true)
+        @QueryParam(ListingParams.showActive)
+        @DefaultValue("false") showActive : Boolean): Response = ResponseUtils.responseFromTryCatch {
         ListingParams(
-            filterBy = OptionalUtils.getOrNull(filterBy)?.let(RequestProcessingUtil::parseFilterPair),
-            limit = OptionalUtils.getOrNull(limit), offset = OptionalUtils.getOrNull(offset),
-            sortBy = OptionalUtils.getOrNull(sortBy), sortOrder = OptionalUtils.getOrNull(sortOrder),
-            showActive = OptionalUtils.getOrNull(showActive) ?: false
+            limit = limit, offset = offset,
+            sortBy = sortBy, sortOrder = sortOrder,
+            showActive = showActive
         ).let(service::getAllUsers)
             .let(ResponseUtils::mapResult)
     }
 
     @Path("{id}")
     @GET
+    @ApiOperation(
+        value = "Returns the user which has same id.",
+        response = User::class,
+        code = HttpStatus.OK_200,
+        notes = "Returns list of existent users"
+    )
+    @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    fun getUserById(@PathParam("id") id: Int): Response = ResponseUtils.responseFromTryCatch {
+    fun getUserById(@ApiParam(hidden = true) @PathParam("id") id: Int): Response = ResponseUtils.responseFromTryCatch {
         service.getUserById(id)
             .let(ResponseUtils::mapResult)
     }
 
     @Path("{id}")
     @DELETE
+    @ApiOperation(
+        value = "Deletes the user which has same id.",
+        response = User::class,
+        code = HttpStatus.OK_200,
+        notes = "Returns list of existent users"
+    )
+    @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    fun deleteUserById(@PathParam("id") id: Int): Response = ResponseUtils.responseFromTryCatch {
+    fun deleteUserById(@ApiParam(hidden = true) @PathParam("id") id: Int): Response = ResponseUtils.responseFromTryCatch {
         service.deleteUserById(id)
             .let(ResponseUtils::mapResult)
     }
 
     @POST
+    @ApiOperation(
+        value = "Creates and saves new user.",
+        response = User::class,
+        code = HttpStatus.OK_200,
+        notes = "Returns list of existent users"
+    )
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Timed
-    fun addNewUser(newUser: Optional<NewUser>): Response = ResponseUtils.responseFromTryCatch {
-        RequestProcessingUtil.checkRequiredBodyEntity(Pair("User", newUser))
+    fun addNewUser(newUser: NewUser): Response = ResponseUtils.responseFromTryCatch {
+        newUser
             .let(service::addUser)
             .let(ResponseUtils::mapResult)
     }
 
     @PATCH
+    @ApiOperation(
+        value = "Updates the user's which has same id.",
+        response = User::class,
+        code = HttpStatus.OK_200,
+        notes = "Returns list of existent users"
+    )
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Timed
-    fun updateUser(updatedUser: Optional<UpdateUser>): Response = ResponseUtils.responseFromTryCatch {
-        RequestProcessingUtil.checkRequiredBodyEntity(Pair("User", updatedUser))
+    fun updateUser(updatedUser: UpdateUser): Response = ResponseUtils.responseFromTryCatch {
+        updatedUser
             .let(service::updateUser)
             .let(ResponseUtils::mapResult)
     }
