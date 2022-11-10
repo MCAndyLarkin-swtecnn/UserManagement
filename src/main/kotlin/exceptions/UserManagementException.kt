@@ -5,9 +5,6 @@ import gateway.model.user.UpdateUser
 
 open class UserManagementException(message: String) : Exception(message)
 
-class RequiredBodyMissedException(bodyDescription: String)
-    : UserManagementException("The required '$bodyDescription' entity in body wasn't provided!")
-
 class EmailAlreadyUsedException(email: String)
     : UserManagementException("The user with same email '$email' is already exists!")
 

@@ -9,5 +9,5 @@ object UserContract {
     const val CREATION_DATE = "creationDate"
     const val DELETION_DATE = "deletionDate"
 
-    val fields = arrayOf(ID, FIRST_NAME, SECOND_NAME, EMAIL, BIRTH_DATE, CREATION_DATE, DELETION_DATE)
+    const val ENTRY_REGEX = "$ID|$FIRST_NAME|$SECOND_NAME|$EMAIL|$BIRTH_DATE|$CREATION_DATE|$DELETION_DATE"
 }

@@ -4,38 +4,83 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import gateway.model.user.NewUser
 import gateway.model.user.UpdateUser
 import gateway.model.user.User
+import gateway.model.user.UserContract
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.util.*
 
 internal class UserDTOTest {
     @Test
-    fun userDTO_serializationDeserialization() {
-        val user = User(1, "Name", "SecondName", "email",
-            birthdayDate = 1L, creationDate = 2L, deletionDate = 3L)
-        val processedUser = ObjectMapper()
-            .readerFor(User::class.java)
-            .readValue<User>(ObjectMapper().writeValueAsString(user))
-        assertEquals(processedUser, user)
+    fun userDTO_serialization() {
+        val user = TestUserModelsUtils.getTestUser()
+        with(ObjectMapper()) {
+            assertEquals(readTree(writeValueAsString(user)), readTree(user.mapToJsonManually()))
+        }
     }
 
     @Test
-    fun newUserDTO_serializationDeserialization() {
-        val user = NewUser("Name", "SecondName", "email",
-            birthdayDate = 1L)
-        val processedUser = ObjectMapper()
-            .readerFor(NewUser::class.java)
-            .readValue<NewUser>(ObjectMapper().writeValueAsString(user))
-        assertEquals(processedUser, user)
+    fun userDTO_deserialization() {
+        val user = TestUserModelsUtils.getTestUser()
+        with(ObjectMapper()) {
+            assertEquals(readerFor(User::class.java).readValue<User>(user.mapToJsonManually()), user)
+        }
     }
 
     @Test
-    fun updateUserDTO_serializationDeserialization() {
-        val user = UpdateUser(1, "Name", "SecondName", "email",
-            birthdayDate = 1L)
-        val processedUser = ObjectMapper()
-            .readerFor(UpdateUser::class.java)
-            .readValue<UpdateUser>(ObjectMapper().writeValueAsString(user))
-        assertEquals(processedUser, user)
+    fun newUserDTO_serialization() {
+        val user = TestUserModelsUtils.getTestNewUser()
+        with(ObjectMapper()) {
+            assertEquals(readTree(writeValueAsString(user)), readTree(user.mapToJsonManually()))
+        }
+    }
+
+    @Test
+    fun newUserDTO_deserialization() {
+        val user = TestUserModelsUtils.getTestNewUser()
+        with(ObjectMapper()) {
+            assertEquals(readerFor(NewUser::class.java).readValue<User>(user.mapToJsonManually()), user)
+        }
+    }
+
+    @Test
+    fun updatedUserDTO_serialization() {
+        val user = TestUserModelsUtils.getTestUpdatedUser()
+        with(ObjectMapper()) {
+            assertEquals(readTree(writeValueAsString(user)), readTree(user.mapToJsonManually()))
+        }
+    }
+
+    @Test
+    fun updatedUserDTO_deserialization() {
+        val user = TestUserModelsUtils.getTestUpdatedUser()
+        with(ObjectMapper()) {
+            assertEquals(readerFor(UpdateUser::class.java).readValue<User>(user.mapToJsonManually()), user)
+        }
+    }
+
+    companion object {
+        private fun User.mapToJsonManually() = """{
+                "${UserContract.ID}": $id,
+                "${UserContract.FIRST_NAME}": "$firstName",
+                "${UserContract.SECOND_NAME}": "$secondName",
+                "${UserContract.EMAIL}": "$email",
+                "${UserContract.BIRTH_DATE}": $birthdayDate,
+                "${UserContract.CREATION_DATE}": $creationDate,
+                "${UserContract.DELETION_DATE}": $deletionDate
+            }"""
+
+        private fun NewUser.mapToJsonManually() = """{
+                "${UserContract.FIRST_NAME}": "$firstName",
+                "${UserContract.SECOND_NAME}": "$secondName",
+                "${UserContract.EMAIL}": "$email",
+                "${UserContract.BIRTH_DATE}": $birthdayDate
+            }"""
+
+        private fun UpdateUser.mapToJsonManually() = """{
+                "${UserContract.ID}": $id,
+                "${UserContract.FIRST_NAME}": "$firstName",
+                "${UserContract.SECOND_NAME}": "$secondName",
+                "${UserContract.EMAIL}": "$email",
+                "${UserContract.BIRTH_DATE}": $birthdayDate
+            }"""
     }
 }

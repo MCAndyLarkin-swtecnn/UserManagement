@@ -1,9 +1,17 @@
 server:
   type: default
-  rootPath: '/appName/*'
   applicationConnectors:
     - type: http
       port: 8080
   adminConnectors:
     - type: http
       port: 8081
+
+database:
+  driverClass: org.h2.Driver
+  user: username
+  password: password
+  url: jdbc:h2:mem:test
+
+swagger:
+  resourcePackage: gateway.controller

@@ -174,7 +174,7 @@ internal class UsersDAOImplTest {
         assert(getAllUsers().isEmpty())
     }
 
-    private fun addRandomUserToTable(id: Int? = null): UserDBModel = getRandomUser(id).also { user ->
+    private fun addRandomUserToTable(id: Int): UserDBModel = getRandomUser(id).also { user ->
         jdbi.withHandle<Any, Exception> { handle ->
             handle.execute(
                 "INSERT INTO ${UsersMappedDao.USERS_TABLE_NAME} (${UsersMappedDao.USER_FIRST_NAME_COLUMN}, " +
@@ -195,7 +195,7 @@ internal class UsersDAOImplTest {
     companion object {
         val h2DefaultDateFormat = SimpleDateFormat("yyyy-MM-dd")
 
-        private fun getRandomUser(id: Int? = null): UserDBModel {
+        private fun getRandomUser(id: Int): UserDBModel {
             val randomDay = Random.nextInt(0, 28)
             val randomYear = Random.nextInt(1900, 2100)
             val randomMonth = Random.nextInt(0, 12)

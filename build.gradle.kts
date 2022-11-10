@@ -37,17 +37,28 @@ dependencies {
     implementation("org.jdbi:jdbi3-sqlobject:3.34.0")
     // https://mvnrepository.com/artifact/com.h2database/h2
     implementation("com.h2database:h2:2.1.214")
+    // https://mvnrepository.com/artifact/io.dropwizard/dropwizard-db
+    implementation("io.dropwizard:dropwizard-db:2.1.4")
+    // https://mvnrepository.com/artifact/io.dropwizard/dropwizard-jdbi3
+    implementation("io.dropwizard:dropwizard-jdbi3:2.1.4")
+
 
     //Utils
     // https://mvnrepository.com/artifact/com.github.rkpunjal.sqlsafe/sql-injection-safe
     implementation("com.github.rkpunjal.sqlsafe:sql-injection-safe:1.0.2")
 
+    //Swagger
+    // https://mvnrepository.com/artifact/com.smoketurner/dropwizard-swagger
+    implementation("com.smoketurner:dropwizard-swagger:2.0.12-1")
 
     //Tests
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
     // https://mvnrepository.com/artifact/io.mockk/mockk
     testImplementation("io.mockk:mockk:1.13.2")
+    // https://mvnrepository.com/artifact/io.dropwizard/dropwizard-testing
+    testImplementation("io.dropwizard:dropwizard-testing:2.1.4")
+
 
 }
 

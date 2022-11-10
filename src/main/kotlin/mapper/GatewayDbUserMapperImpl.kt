@@ -8,7 +8,7 @@ import java.util.*
 
 class GatewayDbUserMapperImpl : GatewayDbUserMapper {
     override fun mapNewUserToDBModel(user: NewUser, id: Int?): UserDBModel = with(user) {
-        UserDBModel(id, firstName, secondName, email, Date(birthdayDate), Date(), null)
+        UserDBModel(id ?: UserDBModel.UNKNOWN_ID, firstName, secondName, email, Date(birthdayDate), Date(), null)
     }
 
     override fun mapUpdateUserToDBModel(user: UpdateUser, creationDate: Date, deletionDate: Date?): UserDBModel = with(user) {
